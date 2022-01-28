@@ -1,6 +1,4 @@
-let s, b, c, z, v;
-s = Math.sin(2)+1
-b = "sdf"
-c = s+1
-z = c
-v = z+s
+let a, b, c;
+a = "sdf"
+b = 12
+c = 1.2

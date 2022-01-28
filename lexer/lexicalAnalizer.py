@@ -3,10 +3,12 @@ from lexer.tokens import tokens
 import sys
 import re
 
+
 mtoken = tokens()
 
 
 def parse(characters):
+    mtoken.tokens_array.clear()
     pos = 0
     while pos < len(characters):
         match = None
@@ -18,7 +20,7 @@ def parse(characters):
                 text = match.group(0)
                 if tag:
                     token = Token(text, tag, pos)
-                    tokens.tokens_array.append(token)
+                    mtoken.tokens_array.append(token)
                 break
         if not match:
             sys.stderr.write('Illegal character: %s\n' % characters[pos])

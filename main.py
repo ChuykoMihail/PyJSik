@@ -33,7 +33,7 @@ def test():
     IO.writeCode(translator.output)
 
 if __name__ == '__main__':
-    test()
+    tester = Tester()
 
 
 
