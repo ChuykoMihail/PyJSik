@@ -1,3 +1,4 @@
-let a, s;
-a = "sdfse"
-s = Math.sqrt(b)
+let s, b, c;
+s = Math.sin(2)+1
+b = "sdf"
+c = s+1

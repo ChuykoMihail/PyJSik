@@ -60,13 +60,7 @@ class SemanticalAnalyzer:
                 elif right.name in ["INTEGER", "BOOL", "STRING", "FLOAT"]:
                     self.variables.append((left.value, right.name))
                 elif right.name in ["EXPRESSION"]:
-                    if right.childs[1].name == "VARIABLE":
-                        if not self.checkvarbool(right.childs[1]):
-                            sys.stderr.write('Unresolved variable: %s\n' % right.childs[1].value)
-                            sys.exit(1)
-                        elif self.checkvar(right.childs[1])[1] == "STRING":
-                            sys.stderr.write('Expected type \'SupportsFloat\': %s\n' % right.childs[0].name)
-                            sys.exit(1)
+                    self.scanexpression(right)
                 elif right.name == "VARIABLE":
                     if self.checkvarbool(right):
                         var = self.checkvar(right)
@@ -75,6 +69,15 @@ class SemanticalAnalyzer:
                         sys.stderr.write('Unresolved variable: %s\n' % right.value)
                         sys.exit(1)
 
+    def scanexpression(self, ptr):
+        if ptr.childs[1].name == "VARIABLE":
+            if not self.checkvarbool(ptr.childs[1]):
+                sys.stderr.write('Unresolved variable: %s\n' % ptr.childs[1].value)
+                sys.exit(1)
+            elif self.checkvar(ptr.childs[1])[1] == "STRING":
+                sys.stderr.write('Expected type \'SupportsFloat\': %s\n' % ptr.childs[0].name)
+                sys.exit(1)
+        self.variables.append((ptr.prev.childs[0].value, "FLOAT"))
 
 
     def subscantypes(self, operation):
@@ -83,7 +86,6 @@ class SemanticalAnalyzer:
         if (left.name, right.name) in self.illegalcombination:
             sys.stderr.write('Illegal type: %s\n' % right.name)
             sys.exit(1)
-
         elif left.name == "OPERATOR":
             self.subscantypes(left)
         elif right.name == "OPERATOR":
@@ -91,22 +93,22 @@ class SemanticalAnalyzer:
         if left.name == "VARIABLE":
             if self.checkvarbool(left):
                 var = self.checkvar(left)
-                if (var[1], right.name) not in self.illegalcombination:
-                    operation.name = var[1]
-                elif (var[1], right.name) in self.illegalcombination:
+                if (var[1], right.name) in self.illegalcombination:
                     sys.stderr.write('Illegal type: %s\n' % right.name)
                     sys.exit(1)
                 elif right.name == "VARIABLE":
                     if self.checkvarbool(right):
                         var2 = self.checkvar(right)
-                        if (var[1], var2[1]) not in self.illegalcombination:
-                            operation.name = var[1]
-                        elif (var[1], var2[1]) in self.illegalcombination:
+                        if (var[1], var2[1]) in self.illegalcombination:
                             sys.stderr.write('Illegal type: %s\n' % var2[0])
                             sys.exit(1)
+                        elif (var[1], var2[1]) not in self.illegalcombination:
+                            operation.name = var[1]
                     else:
                         sys.stderr.write('Unresolved variable: %s\n' % left.value)
                         sys.exit(1)
+                elif (var[1], right.name) not in self.illegalcombination:
+                    operation.name = var[1]
             else:
                 sys.stderr.write('Unresolved variable: %s\n' % left.value)
                 sys.exit(1)
