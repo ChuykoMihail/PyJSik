@@ -80,8 +80,7 @@ class SemanticalAnalyzer:
         ]:
             sys.stderr.write('Illegal type: %s\n' % right.name)
             sys.exit(1)
-        elif (left.name, right.name) not in self.illegalcombination:
-            operation.name = left.name
+
         elif left.name == "OPERATOR":
             self.subscantypes(left)
         elif right.name == "OPERATOR":
@@ -119,4 +118,6 @@ class SemanticalAnalyzer:
             else:
                 sys.stderr.write('Unresolved variable: %s\n' % left.value)
                 sys.exit(1)
+        elif (left.name, right.name) not in self.illegalcombination:
+            operation.name = left.name
 

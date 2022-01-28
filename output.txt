@@ -1,2 +1,4 @@
-let a;
-a = "{}ihisfs:,;<>=_{}ifugiu"
+let s, b, c;
+s = 312314+19698*/312
+b = s+1+2*4
+c = b-s+b-12
