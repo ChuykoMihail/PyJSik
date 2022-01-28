@@ -33,6 +33,7 @@ class SemanticalAnalyzer:
             if left.name == "VARIABLE":
                 if right.name == "OPERATOR":
                     self.subscantypes(right)
+                    self.scan(ptr.prev)
                 elif right.name in ["INTEGER", "BOOL", "STRING"]:
                     self.variables.append((left.value, right.name))
                 elif right.name == "VARIABLE":
@@ -56,19 +57,23 @@ class SemanticalAnalyzer:
             sys.exit(1)
         elif (left.name, right.name) in [
             ("INTEGER", "INTEGER"),
-            ("STRING", "STRING")
+            ("STRING", "STRING"),
+            ("INTEGER", "BOOL"),
+            ("BOOL", "INTEGER")
         ]:
             operation.name = left.name
         elif left.name == "OPERATOR":
-            self.subscan(left)
+            self.subscantypes(left)
         elif right.name == "OPERATOR":
-            self.subscan(right)
+            self.subscantypes(right)
         if left.name == "VARIABLE":
             if self.checkvarbool(left):
                 var = self.checkvar(left)
                 if (var[1], right.name) in [
                     ("INTEGER", "INTEGER"),
-                    ("STRING", "STRING")
+                    ("STRING", "STRING"),
+                    ("INTEGER", "BOOL"),
+                    ("BOOL", "INTEGER")
                 ]:
                     operation.name = var[1]
                 elif (var[1], right.name) in [
@@ -85,7 +90,9 @@ class SemanticalAnalyzer:
                 var = self.checkvar(right)
                 if (var[1], left.name) in [
                     ("INTEGER", "INTEGER"),
-                    ("STRING", "STRING")
+                    ("STRING", "STRING"),
+                    ("INTEGER", "BOOL"),
+                    ("BOOL", "INTEGER")
                 ]:
                     operation.name = var[1]
                 elif (var[1], left.name) in [

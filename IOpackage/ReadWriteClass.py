@@ -6,7 +6,7 @@ def read(path=""):
     else:
         with open(path, 'r') as f:
             inputCode = f.read()
-    inputCode = inputCode.replace("\n", "\\n")
+    inputCode = inputCode.replace("\n", " ")
     inputCode = inputCode.replace("    ", "\\t")
     inputCode = inputCode.replace(" ", "")
     return inputCode

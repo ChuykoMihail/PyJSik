@@ -7,6 +7,7 @@ from syntaxer.grammar import Grammar
 from syntaxer.ATS import SyntacticalTree
 from semanticaltree.operationtree import SyntacticsStructure
 from semanticaltree.semanticalanalizer import SemanticalAnalyzer
+from codegenerator.codegenerator import CodeGenerator
 
 
 if __name__ == '__main__':
@@ -21,6 +22,10 @@ if __name__ == '__main__':
     operationtree = SyntacticsStructure(tree)
     operationtree.printast()
     sema = SemanticalAnalyzer(operationtree)
+    translator = CodeGenerator(operationtree, sema.variables)
+    translator.translate(operationtree.root)
+    print(translator.output)
+
 
 
 

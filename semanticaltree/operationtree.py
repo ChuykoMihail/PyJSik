@@ -91,7 +91,6 @@ class SyntacticsStructure:
         ptr.me.name = i.name
         ptr.me.isNonterminal = i.isNonterminal
         ptr.childs.remove(i)
-        """"""
 
     def __haveuselessterm(self, ptr: NodeStruct):
         res = False
@@ -158,7 +157,7 @@ class SyntacticsStructure:
             while True:
                 lastnode = self.__getlastnonterm(ptr)  # шаг 2
                 if self.__havealonechild(lastnode) \
-                        and (lastnode.name not in ["VARIABLE", "STRING", "COMPOUND_OPERATOR", "INTEGER"]):  # step3
+                        and (lastnode.name not in ["VARIABLE", "STRING", "COMPOUND_OPERATOR", "INTEGER", "BOOL"]):  # step3
                     lastnode.me = lastnode.childs[0]
                     self.__reformattree(ptr)  # вернутся к шагу 1
                 elif self.__haveuselessterm(lastnode):  # шаг 4
@@ -174,7 +173,10 @@ class SyntacticsStructure:
                         ("IDENTIFIER", "VALUE"),
                         ("IDENTIFIER", "IDENTIFIER"),
                         ("STRING", "STRING"),
-                        ("NUM", "INTEGER")
+                        ("NUM", "INTEGER"),
+                        # ("IDENTIFIER", "BOOL"),
+                        # ("BOOL", "IDENTIFIER")
+
                         #("INTEGER NUMBER", "SIGNED NUM"),
                         #("REAL NUMBER", "SIGNED NUM"),
                     ]:
@@ -209,7 +211,7 @@ class SyntacticsStructure:
 
         def _searchid(ptr: NodeStruct):
             for i in ptr.childs:
-                if i.name in ['VARIABLE', 'INTEGER', 'STRING']:
+                if i.name in ['VARIABLE', 'INTEGER', 'STRING', 'BOOL']:
                     tmp = ''
                     for j in i.childs:
                         tmp = tmp + j.name
