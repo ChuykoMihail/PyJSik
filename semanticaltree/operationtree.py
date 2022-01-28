@@ -168,7 +168,7 @@ class SyntacticsStructure:
                 elif lastnode.isNonterminal:
                     if (lastnode.name, lastnode.prev.name) in [
                         ("VARIABLE", "VARIABLE"),
-                        #("REAL_NUMBER", "FLOAT"),
+                        ("REAL_NUMBER", "FLOAT"),
                         ("IDENTIFIER", "VALUE"),
                         ("IDENTIFIER", "IDENTIFIER"),
                         ("STRING", "STRING"),
@@ -209,7 +209,7 @@ class SyntacticsStructure:
 
         def _searchid(ptr: NodeStruct):
             for i in ptr.childs:
-                if i.name in ['VARIABLE', 'INTEGER', 'STRING', 'BOOL', 'REAL_NUMBER']:
+                if i.name in ['VARIABLE', 'INTEGER', 'STRING', 'BOOL', 'FLOAT']:
                     tmp = ''
                     for j in i.childs:
                         tmp = tmp + j.name
