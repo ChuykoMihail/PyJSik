@@ -10,9 +10,10 @@ from syntaxer.ATS import SyntacticalTree
 from semanticaltree.operationtree import SyntacticsStructure
 from semanticaltree.semanticalanalizer import SemanticalAnalyzer
 from codegenerator.codegenerator import CodeGenerator
+from test.RunTests import Tester
+from pathlib import Path
 
-
-if __name__ == '__main__':
+def test():
     sa = SyntaxAnalizer()
     code = IO.read()
     tokens = la.parse(code)
@@ -21,12 +22,22 @@ if __name__ == '__main__':
     parsed = sa.right_parsing(table)
     tree = SyntacticalTree(parsed)
     tree.printTree()
+    IO.writeSyntaxTree(tree)
     operationtree = SyntacticsStructure(tree)
     operationtree.printast()
+    IO.writeOperationTree(operationtree)
     sema = SemanticalAnalyzer(operationtree)
     translator = CodeGenerator(operationtree, sema.variables)
     translator.translate(operationtree.root)
     print(translator.output)
+    IO.writeCode(translator.output)
+
+if __name__ == '__main__':
+    path = "\\\\"
+    print(path)
+    path = str(Path(__file__).resolve())
+    print(path)
+    tester = Tester()
 
 
 

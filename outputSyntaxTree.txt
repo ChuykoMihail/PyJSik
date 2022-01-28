@@ -1,0 +1,16 @@
+0:|├-GAMMA
+1:| ├-PROGRAMM
+2:|  ├-COMPOUND_OPERATOR
+3:|   ├-VARIABLE_DECLARATION
+4:|    ├-VARIABLE
+5:|     ├-LETTER
+6:|      ├-a
+4:|    ├-ASSIGNMENT_RELATION
+5:|     ├-=
+4:|    ├-VALUE
+5:|     ├-IDENTIFIER
+6:|      ├-INTEGER
+7:|       ├-NUM
+8:|        ├-DIGIT
+9:|         ├-NOT_NULL_DIGIT
+10:|          ├-1

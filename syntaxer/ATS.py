@@ -57,5 +57,23 @@ class SyntacticalTree:
         search(self.root, level)
         print()
 
+    def printTreeToFile(self):
+        def search(ptr: Node, level, file):
+            if ptr.prev is None:
+                l = 0
+            else:
+                if isinstance(ptr.prev.left, Rule):
+                    l = len(ptr.prev.left.name)
+                else:
+                    l = len(ptr.prev.left)
+            file.write(str(level) + ':' + '|' + level * ' ' + '├-' + str(ptr.left)+"\n")
+            if ptr.childs:
+                for i in ptr.childs:
+                    search(i, level + 1, file)
+        file = open("outputSyntaxTree.txt", 'w', encoding="utf-8")
+        level = 0
+        search(self.root, level, file)
+        print()
+
     def __str__(self):
         return 'None'

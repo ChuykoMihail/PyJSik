@@ -1,0 +1,4 @@
+0:|├-[Terminal;COMPOUND_OPERATOR;]
+1:|+├-[Terminal;ASSIGNMENT;=]
+2:|++├-[Terminal;VARIABLE;a]
+2:|++├-[Terminal;INTEGER;1]

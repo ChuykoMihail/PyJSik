@@ -305,3 +305,14 @@ class SyntacticsStructure:
         level = 0
         search(self.root, level)
         print()
+
+    def printastToFile(self):
+        def search(ptr: NodeStruct, level, file):
+            file.write(str(level) + ':' + '|' + level * '+' + '├-' + str(ptr) + "\n")
+            if ptr.childs:
+                for i in ptr.childs:
+                    search(i, level + 1, file)
+
+        file = file = open("outputOperationTree.txt", 'w', encoding="utf-8")
+        level = 0
+        search(self.root, level, file)
