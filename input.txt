@@ -1,3 +1,5 @@
 s = math.sin(2)+1
 b="sdf"
 c = s+1
+z= c
+v=z+s

@@ -60,7 +60,8 @@ class SemanticalAnalyzer:
                 elif right.name in ["INTEGER", "BOOL", "STRING", "FLOAT"]:
                     self.variables.append((left.value, right.name))
                 elif right.name in ["EXPRESSION"]:
-                    self.scanexpression(right)
+                    if self.scanexpression(right):
+                        self.variables.append((right.prev.childs[0].value, "FLOAT"))
                 elif right.name == "VARIABLE":
                     if self.checkvarbool(right):
                         var = self.checkvar(right)
@@ -77,7 +78,10 @@ class SemanticalAnalyzer:
             elif self.checkvar(ptr.childs[1])[1] == "STRING":
                 sys.stderr.write('Expected type \'SupportsFloat\': %s\n' % ptr.childs[0].name)
                 sys.exit(1)
-        self.variables.append((ptr.prev.childs[0].value, "FLOAT"))
+            elif ptr.childs[1] == "OPERATION":
+                self.subscantypes(ptr.childs[1])
+                self.scanexpression(ptr)
+        return True
 
 
     def subscantypes(self, operation):
@@ -112,17 +116,31 @@ class SemanticalAnalyzer:
             else:
                 sys.stderr.write('Unresolved variable: %s\n' % left.value)
                 sys.exit(1)
+        elif left.name == "EXPRESSION":
+            if self.scanexpression(left):
+                if ("FLOAT", right.name) in self.illegalcombination:
+                    sys.stderr.write('Illegal type: %s\n' % right.name)
+                    sys.exit(1)
+                else:
+                    operation.name = "FLOAT"
         elif right.name == "VARIABLE":
             if self.checkvarbool(right):
                 var = self.checkvar(right)
-                if (var[1], left.name) not in self.illegalcombination:
-                    operation.name = var[1]
-                elif (var[1], left.name) in self.illegalcombination:
+                if (var[1], left.name) in self.illegalcombination:
                     sys.stderr.write('Illegal type: %s\n' % right.name)
                     sys.exit(1)
+                elif (var[1], left.name) not in self.illegalcombination:
+                    operation.name = var[1]
             else:
                 sys.stderr.write('Unresolved variable: %s\n' % left.value)
                 sys.exit(1)
+        elif right.name == "EXPRESSION":
+            if self.scanexpression(left):
+                if ("FLOAT", right.name) in self.illegalcombination:
+                    sys.stderr.write('Illegal type: %s\n' % right.name)
+                    sys.exit(1)
+                else:
+                    operation.name = "FLOAT"
         elif (left.name, right.name) not in self.illegalcombination:
             operation.name = left.name
 
