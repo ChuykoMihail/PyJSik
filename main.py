@@ -1,3 +1,5 @@
+import math
+
 import lexer.lexicalAnalizer as la
 import IOpackage.ReadWriteClass as IO
 from syntaxer.syntaxanalizer import SyntaxAnalizer
@@ -25,6 +27,8 @@ if __name__ == '__main__':
     translator = CodeGenerator(operationtree, sema.variables)
     translator.translate(operationtree.root)
     print(translator.output)
+
+
 
 
 

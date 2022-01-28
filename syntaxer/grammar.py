@@ -66,9 +66,21 @@ class Grammar:
         self.DIGIT_VAR.add(SyntaxUnit(self.DIGIT, self.DIGIT_VAR), SyntaxUnit(self.DIGIT, self.VARIABLE))
         self.VARIABLE.add(SyntaxUnit("_", self.VARIABLE), SyntaxUnit(self.LETTER, self.VARIABLE))
 
+        self.EXP = Rule("EXP", SyntaxUnit("e+"), SyntaxUnit("e-"), SyntaxUnit("E+"),
+                        SyntaxUnit("E-"), SyntaxUnit("e"), SyntaxUnit("E"))
+        self.REAL_NUMBER = Rule("REAL_NUMBER", SyntaxUnit(self.NUM, ".", self.NUM),
+                                SyntaxUnit(self.NUM, ".", self.NUM, self.EXP, self.NUM),
+                                SyntaxUnit(self.NUM, ".", self.EXP, self.NUM),
+                                SyntaxUnit(self.NUM, self.EXP, self.NUM),
+                                SyntaxUnit(".", self.NUM),
+                                SyntaxUnit(".", self.NUM, self.EXP, self.NUM)
+                                )
+
+        self.FLOAT = Rule("FLOAT", SyntaxUnit(self.REAL_NUMBER), SyntaxUnit("-", self.REAL_NUMBER))
+
         self.IDENTIFIER = Rule("IDENTIFIER", SyntaxUnit(self.INTEGER), SyntaxUnit(self.STRING_TYPE),
                                SyntaxUnit(self.BOOL),
-                               SyntaxUnit(self.VARIABLE))
+                               SyntaxUnit(self.VARIABLE), SyntaxUnit(self.FLOAT))
 
         self.VALUE = Rule("VALUE", SyntaxUnit(self.IDENTIFIER))
 
@@ -80,15 +92,29 @@ class Grammar:
 
         self.EXPRESSION = Rule("EXPRESSION", SyntaxUnit(self.SUMMAND))
         self.EXPRESSION.add(SyntaxUnit(self.EXPRESSION, self.ADDICTIVE_OPERATION, self.EXPRESSION))
-
         self.RELATION_EXPR.add(SyntaxUnit(self.EXPRESSION, self.RELATIONS, self.EXPRESSION))
-
         self.VALUE.add(SyntaxUnit(self.EXPRESSION))
+
+        self.EXPRESSION.add(SyntaxUnit("math.cos", "(", self.VALUE, ")"), SyntaxUnit("math.sin", "(", self.VALUE, ")"),
+                            SyntaxUnit("math.sqrt", "(", self.VALUE, ")"), SyntaxUnit("abs", "(", self.VALUE, ")"),
+                            SyntaxUnit("math.tan", "(", self.VALUE, ")"))
 
         self.VARIABLE_DECLARATION = Rule("VARIABLE_DECLARATION",
                                          SyntaxUnit(self.VARIABLE, self.ASSIGNMENT_RELATION, self.VALUE))
-
         self.COMPOUND_OPERATOR = Rule("COMPOUND_OPERATOR", SyntaxUnit(self.VARIABLE_DECLARATION))
+
+        self.ADDITIONAL_EXPRESSION = Rule("ADDITIONAL_EXPRESSION", SyntaxUnit(self.LOGICAL_OPERATOR,
+                                                                              self.RELATION_EXPR))
+        self.CONDITIONAL_EXPRESSION = Rule("CONDITIONAL_EXPRESSION", SyntaxUnit(self.RELATION_EXPR))
+        self.CONDITIONAL_EXPRESSION = Rule("CONDITIONAL_EXPRESSION", SyntaxUnit(self.RELATION_EXPR,
+                                                                                self.ADDITIONAL_EXPRESSION))
+
+        self.CONDITIONAL_OPERATOR = Rule("CONDITIONAL_OPERATOR", SyntaxUnit("if", self.CONDITIONAL_EXPRESSION, ":",
+                                                                            self.COMPOUND_OPERATOR),
+                                         SyntaxUnit("if", self.CONDITIONAL_EXPRESSION, ":", self.COMPOUND_OPERATOR,
+                                                    "else", ":", self.COMPOUND_OPERATOR))
+
+        self.COMPOUND_OPERATOR.add(SyntaxUnit(self.CONDITIONAL_OPERATOR))
 
         self.PROGRAMM = Rule("PROGRAMM", SyntaxUnit(self.COMPOUND_OPERATOR))
         self.PROGRAMM.add(SyntaxUnit(self.COMPOUND_OPERATOR, self.PROGRAMM))

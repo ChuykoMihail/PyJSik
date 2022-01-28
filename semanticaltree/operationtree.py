@@ -157,7 +157,7 @@ class SyntacticsStructure:
             while True:
                 lastnode = self.__getlastnonterm(ptr)  # шаг 2
                 if self.__havealonechild(lastnode) \
-                        and (lastnode.name not in ["VARIABLE", "STRING", "COMPOUND_OPERATOR", "INTEGER", "BOOL"]):  # step3
+                        and (lastnode.name not in ["VARIABLE", "STRING", "COMPOUND_OPERATOR", "INTEGER", "BOOL", "FLOAT"]):  # step3
                     lastnode.me = lastnode.childs[0]
                     self.__reformattree(ptr)  # вернутся к шагу 1
                 elif self.__haveuselessterm(lastnode):  # шаг 4
@@ -168,6 +168,8 @@ class SyntacticsStructure:
                 elif lastnode.isNonterminal:
                     if (lastnode.name, lastnode.prev.name) in [
                         ("VARIABLE", "VARIABLE"),
+                        # ("FLOAT","IDENTIFIER"),
+                        ("REAL_NUMBER", "FLOAT"),
                         #("VARIABLE", "IDENTIFIER"),
                         #("IDENTIFIER", "VARIABLE"),
                         ("IDENTIFIER", "VALUE"),
@@ -211,7 +213,7 @@ class SyntacticsStructure:
 
         def _searchid(ptr: NodeStruct):
             for i in ptr.childs:
-                if i.name in ['VARIABLE', 'INTEGER', 'STRING', 'BOOL']:
+                if i.name in ['VARIABLE', 'INTEGER', 'STRING', 'BOOL', 'FLOAT']:
                     tmp = ''
                     for j in i.childs:
                         tmp = tmp + j.name

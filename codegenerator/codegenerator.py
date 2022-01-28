@@ -1,13 +1,14 @@
 from semanticaltree.semanticalanalizer import SyntacticsStructure
 from semanticaltree.semanticalanalizer import NodeStruct
 
+
 class CodeGenerator:
     def __init__(self, tree, variables):
         self.tree: SyntacticsStructure = tree
         self.root: NodeStruct = self.tree.root
         self.variables = variables
         self.output = ""
-        self.binaroperator = ["+", "-", "*", "/"]
+        self.binaroperator = ["+", "-", "*", "/" , ">", "<","<=",">="]
 
     def translate(self, ptr):
         self.vardeclaration()
@@ -15,7 +16,6 @@ class CodeGenerator:
             self.translatesingle(self.root.childs[0])
         else:
             self.translateall(ptr)
-
 
     def translateall(self, ptr):
         for child in ptr.childs:
@@ -33,7 +33,7 @@ class CodeGenerator:
             else:
                 for var in self.variables:
                     self.output += var[0] + ", "
-                self.output = self.output[:len(self.output)-2]
+                self.output = self.output[:len(self.output) - 2]
                 self.output += ";\n"
 
     def translateexpression(self, ptr: NodeStruct):
@@ -42,16 +42,29 @@ class CodeGenerator:
             localoutput += self.translateexpression(ptr.childs[0])
             localoutput += ptr.value
             localoutput += self.translateexpression(ptr.childs[1])
-            localoutput = "("+localoutput+")"
+            localoutput = localoutput
             return localoutput
-        elif ptr.name in ["INTEGER", "BOOL", "VARIABLE"]:
+        elif ptr.name in ["INTEGER", "BOOL", "VARIABLE", "REAL_NUMBER", "FLOAT"]:
             localoutput += str(ptr.value)
             return localoutput
+        elif ptr.name in ["STRING"]:
+            localoutput += "\"" + ptr.value + "\""
+            return localoutput
+        elif ptr.name in ["EXPRESSION"]:
+            if ptr.childs[0].name != "abs":
+                ptr.childs[0].name = ptr.childs[0].name.replace("m", "M")
+            else:
+                ptr.childs[0].name = "Math."+ptr.childs[0].name
+            localoutput += ptr.childs[0].name + "("
+            localoutput += self.translateexpression(ptr.childs[1])
+            localoutput += ")"
+            return localoutput
+        # elif ptr.name == "FLOAT":
+        #     localoutput+=ptr.childs[0].value+ptr.childs[1].value
+        #     return localoutput
 
     def translatesingle(self, compound: NodeStruct):
         if compound.name == "ASSIGNMENT":
             self.output += compound.childs[0].value + " = "
             self.output += self.translateexpression(compound.childs[1])
         self.output += "\n"
-
-
