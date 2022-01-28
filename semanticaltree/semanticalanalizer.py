@@ -9,20 +9,20 @@ class SemanticalAnalyzer:
         self.tree = opertree
         self.root = self.tree.root
         self.variables = []
-        self.legalcombination = [
-            ("INTEGER", "INTEGER"),
-            ("STRING", "STRING"),
-            ("INTEGER", "BOOL"),
-            ("BOOL", "INTEGER"),
-            ("FLOAT", "INTEGER"),
-            ("INTEGER", "FLOAT"),
-            ("FLOAT", "FLOAT"),
-            ("EXPRESSION", "EXPRESSION"),
-            ("EXPRESSION", "FLOAT"),
-            ("FLOAT", "EXPRESSION"),
-            ("EXPRESSION", "INTEGER"),
-            ("INTEGER", "EXPRESSION")
-        ]
+        # self.legalcombination = [
+        #     ("INTEGER", "INTEGER"),
+        #     ("STRING", "STRING"),
+        #     ("INTEGER", "BOOL"),
+        #     ("BOOL", "INTEGER"),
+        #     ("FLOAT", "INTEGER"),
+        #     ("INTEGER", "FLOAT"),
+        #     ("FLOAT", "FLOAT"),
+        #     ("EXPRESSION", "EXPRESSION"),
+        #     ("EXPRESSION", "FLOAT"),
+        #     ("FLOAT", "EXPRESSION"),
+        #     ("EXPRESSION", "INTEGER"),
+        #     ("INTEGER", "EXPRESSION")
+        # ]
         self.illegalcombination = [
             ("INTEGER", "STRING"),
             ("STRING", "INTEGER"),
@@ -57,8 +57,16 @@ class SemanticalAnalyzer:
                 if right.name == "OPERATOR":
                     self.subscantypes(right)
                     self.scan(ptr.prev)
-                elif right.name in ["INTEGER", "BOOL", "STRING", "FLOAT", "EXPRESSION"]:
+                elif right.name in ["INTEGER", "BOOL", "STRING", "FLOAT"]:
                     self.variables.append((left.value, right.name))
+                elif right.name in ["EXPRESSION"]:
+                    if right.childs[1].name == "VARIABLE":
+                        if not self.checkvarbool(right.childs[1]):
+                            sys.stderr.write('Unresolved variable: %s\n' % right.childs[1].value)
+                            sys.exit(1)
+                        elif self.checkvar(right.childs[1])[1] == "STRING":
+                            sys.stderr.write('Expected type \'SupportsFloat\': %s\n' % right.childs[0].name)
+                            sys.exit(1)
                 elif right.name == "VARIABLE":
                     if self.checkvarbool(right):
                         var = self.checkvar(right)
@@ -72,12 +80,7 @@ class SemanticalAnalyzer:
     def subscantypes(self, operation):
         left = operation.childs[0]
         right = operation.childs[1]
-        if (left.name, right.name) in [
-            ("INTEGER", "STRING"),
-            ("STRING", "INTEGER"),
-            ("EXPRESSION", "STRING"),
-            ("STRING", "EXPRESSION")
-        ]:
+        if (left.name, right.name) in self.illegalcombination:
             sys.stderr.write('Illegal type: %s\n' % right.name)
             sys.exit(1)
 
