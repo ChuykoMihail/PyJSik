@@ -33,14 +33,7 @@ def test():
     IO.writeCode(translator.output)
 
 if __name__ == '__main__':
-    path = "\\\\"
-    print(path)
-    path = str(Path(__file__).resolve())
-    print(path)
-    tester = Tester()
-
-
-
+    test()
 
 
 

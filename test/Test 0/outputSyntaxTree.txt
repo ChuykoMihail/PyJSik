@@ -13,4 +13,12 @@
 7:|       ├-NUM
 8:|        ├-DIGIT
 9:|         ├-NOT_NULL_DIGIT
-10:|          ├-3
+10:|          ├-1
+8:|        ├-NUM
+9:|         ├-DIGIT
+10:|          ├-NOT_NULL_DIGIT
+11:|           ├-5
+9:|         ├-NUM
+10:|          ├-DIGIT
+11:|           ├-NOT_NULL_DIGIT
+12:|            ├-3

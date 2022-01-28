@@ -175,7 +175,11 @@ class SyntacticsStructure:
                         ("IDENTIFIER", "VALUE"),
                         ("IDENTIFIER", "IDENTIFIER"),
                         ("STRING", "STRING"),
+                        ("NUM","NUM"),
                         ("NUM", "INTEGER"),
+                        ("DIGIT", "NUM"),
+                        ("NUM", "DIGIT")
+
                         # ("IDENTIFIER", "BOOL"),
                         # ("BOOL", "IDENTIFIER")
 
