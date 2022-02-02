@@ -1,6 +1,6 @@
 let password;
 password = "ssh"
-if (password=="sshh" && password!="gg") { 
+if (password=="sshh" && password<="gg") { 
 	let a1;
 	a1 = Math.abs(1.0)
 } else {

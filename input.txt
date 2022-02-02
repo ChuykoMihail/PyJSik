@@ -1,5 +1,7 @@
 password = "ssh"
-if (password == "sshh") and password != "gg":
+if (password == "sshh") and password <= "gg":
     a1 = abs(1.0)
+
+
 else:
     a1 = 12/55

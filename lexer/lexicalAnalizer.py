@@ -17,6 +17,10 @@ def parse(characters):
             regex = re.compile(pattern)
             match = regex.match(characters, pos)
             if match:
+                if tag == "RESERVEDNAME":
+                    if characters[match.end(0)] != "(":
+                        print(match.end(0))
+                        continue
                 text = match.group(0)
                 if tag:
                     token = Token(text, tag, pos)
@@ -31,10 +35,43 @@ def parse(characters):
 
 def lextableToString(lextable):
     res = ""
-    for i in lextable:
+    counter = -1
+    while(counter < len(lextable)-1):
+        counter += 1
+        i = lextable[counter]
         if i.type == tokens.tokens_type[2] or i.type == tokens.tokens_type[5] or i.type == tokens.tokens_type[6] or i.type == tokens.tokens_type[7]:
             for j in i.value:
                 res += ' ' + j
+        elif i.value == "\\n" and lextable[counter+1].value == "\\n":
+            continue
+        elif i.value == "\\n" and lextable[counter+1].value == "\\t":
+            res += ' ' + i.value
+            tmpcounter = counter
+            print(tmpcounter, counter)
+            while(lextable[tmpcounter+1].value == "\\t"):
+                tmpcounter+=1
+            else:
+                if lextable[tmpcounter+1].value == "\\n":
+                    counter = tmpcounter
+                else:
+                    continue
         else:
             res += ' ' + i.value
     return res
+
+
+
+
+    # for i in lextable:
+    #     counter += 1
+    #     if i.type == tokens.tokens_type[2] or i.type == tokens.tokens_type[5] or i.type == tokens.tokens_type[6] or i.type == tokens.tokens_type[7]:
+    #         for j in i.value:
+    #             res += ' ' + j
+    #     elif i.value == "\\n" and lextable[counter+1].value == "\\n":
+    #         continue
+    #     elif i.value == "\\n" and lextable[counter+1].value == "\\t":
+    #         tmpcounter=counter+1
+    #         while(lextable[tmpcounter].value == "\\t")
+    #     else:
+    #         res += ' ' + i.value
+    # return res
