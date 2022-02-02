@@ -1,8 +1,8 @@
 let password;
-password = 2
-if (password==1 && password<=1) { 
+password = "ssh"
+if (password=="sshh" && password!="gg") { 
 	let a1;
-	a1 = Math.abs(1)
+	a1 = Math.abs(1.0)
 } else {
 	let a1;
 	a1 = 12/55

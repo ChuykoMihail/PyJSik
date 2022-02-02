@@ -12,7 +12,7 @@ class CodeGenerator:
         self.output = ""
         self.logicbinoperation = ["and", "or"]
         self.unaroperation = ["not"]
-        self.binaroperator = ["+", "-", "*", "/", ">", "<","<=",">=", "=="]
+        self.binaroperator = ["+", "-", "*", "/", ">", "<","<=",">=", "==", "!="]
 
     def translate(self, ptr):
         self.output+=self.vardeclaration()
