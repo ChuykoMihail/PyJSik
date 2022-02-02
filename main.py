@@ -34,9 +34,7 @@ def test():
 
 if __name__ == '__main__':
     test()
-    # z = False
-    # if 1:
-    #     c = 1
-    #     if z:
-    #         v = 1
-    # a = v
+    # if 1 - -1:
+    #     a = 1
+    # else:
+    #     a = 2

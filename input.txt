@@ -1,4 +1,5 @@
-if 1:
-    a=1
+password = 2
+if password == 1 and password <= 1:
+    a1 = abs(1)
 else:
-    a=2
+    a1 = 12/55
