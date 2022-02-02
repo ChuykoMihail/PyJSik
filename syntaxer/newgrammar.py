@@ -43,9 +43,6 @@ class Grammar:
         self.NUM = Rule("NUM", SyntaxUnit(self.DIGIT))
         self.NUM.add(SyntaxUnit(self.DIGIT, self.NUM))
 
-        # self.NATURAL_NUM = Rule("NATURAL_NUM", SyntaxUnit(self.NOT_NULL_DIGIT, SyntaxUnit(self.NUM)),
-        #                         SyntaxUnit(self.NOT_NULL_DIGIT))
-
         self.INTEGER = Rule("INTEGER", SyntaxUnit(self.NUM), SyntaxUnit("-", self.NUM))
 
         self.RELATIONS = Rule("RELATIONS", SyntaxUnit("<"), SyntaxUnit(">"), SyntaxUnit("<="),
@@ -99,24 +96,35 @@ class Grammar:
                             SyntaxUnit("math.sqrt", "(", self.VALUE, ")"), SyntaxUnit("abs", "(", self.VALUE, ")"),
                             SyntaxUnit("math.tan", "(", self.VALUE, ")"))
 
+        self.N = Rule("N", SyntaxUnit("\\n"))
+        self.N.add(SyntaxUnit("\\n", self.N))
+
+        self.T = Rule("T", SyntaxUnit("\\t"))
+        self.T.add(SyntaxUnit("\\t", self.T))
+
         self.VARIABLE_DECLARATION = Rule("VARIABLE_DECLARATION",
                                          SyntaxUnit(self.VARIABLE, self.ASSIGNMENT_RELATION, self.VALUE))
         self.COMPOUND_OPERATOR = Rule("COMPOUND_OPERATOR", SyntaxUnit(self.VARIABLE_DECLARATION))
 
         self.ADDITIONAL_EXPRESSION = Rule("ADDITIONAL_EXPRESSION", SyntaxUnit(self.LOGICAL_OPERATOR,
                                                                               self.RELATION_EXPR))
-        self.CONDITIONAL_EXPRESSION = Rule("CONDITIONAL_EXPRESSION", SyntaxUnit(self.RELATION_EXPR))
-        # self.CONDITIONAL_EXPRESSION = Rule("CONDITIONAL_EXPRESSION", SyntaxUnit(self.RELATION_EXPR,
-        #                                                                         self.ADDITIONAL_EXPRESSION))
+        self.ADDITIONAL_EXPRESSION.add(SyntaxUnit(self.LOGICAL_OPERATOR, self.RELATION_EXPR,
+                                                    self.ADDITIONAL_EXPRESSION))
 
-        self.CONDITIONAL_OPERATOR = Rule("CONDITIONAL_OPERATOR", SyntaxUnit("if", self.CONDITIONAL_EXPRESSION, ":",
-                                                                            self.COMPOUND_OPERATOR),
-                                         SyntaxUnit("if", self.CONDITIONAL_EXPRESSION, ":", self.COMPOUND_OPERATOR,
-                                                    "else", ":", self.COMPOUND_OPERATOR))
+        self.CONDITIONAL_EXPRESSION = Rule("CONDITIONAL_EXPRESSION", SyntaxUnit(self.RELATION_EXPR),
+                                           SyntaxUnit(self.RELATION_EXPR,self.ADDITIONAL_EXPRESSION))
+
+        self.INTERNAL_OPERATOR = Rule("INTERNAL_OPERATOR", SyntaxUnit(self.T, self.COMPOUND_OPERATOR))
+        self.INTERNAL_OPERATOR.add(SyntaxUnit(self.T, self.COMPOUND_OPERATOR, self.N, self.INTERNAL_OPERATOR))
+
+        self.CONDITIONAL_OPERATOR = Rule("CONDITIONAL_OPERATOR", SyntaxUnit("if", self.CONDITIONAL_EXPRESSION, ":",self.N,
+                                                                            self.INTERNAL_OPERATOR),
+                                         SyntaxUnit("if", self.CONDITIONAL_EXPRESSION, ":", self.N, self.INTERNAL_OPERATOR,
+                                                    self.N,"else", ":", self.N, self.INTERNAL_OPERATOR))
 
         self.COMPOUND_OPERATOR.add(SyntaxUnit(self.CONDITIONAL_OPERATOR))
 
         self.PROGRAMM = Rule("PROGRAMM", SyntaxUnit(self.COMPOUND_OPERATOR))
-        self.PROGRAMM.add(SyntaxUnit(self.COMPOUND_OPERATOR, self.PROGRAMM))
+        self.PROGRAMM.add(SyntaxUnit(self.COMPOUND_OPERATOR, self.N, self.PROGRAMM))
 
         self.GAMMA_RULE = u"GAMMA"

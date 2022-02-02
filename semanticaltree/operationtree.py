@@ -58,7 +58,7 @@ class NodeStruct:
 
 class SyntacticsStructure:
     def __init__(self, stree: SyntacticalTree):
-        self.uselessterms = ["(", ")", "if", "\'", "\"", "else"]
+        self.uselessterms = ["(", ")", "if", "\'", "\"",":", "\\n"]
         self.operations = ['+', '-', '*', '/', '>', '<', '>=', '<=', '==', '!=', 'and', 'or', '=']
         self.unaroperations = ['not']
         self.root = self.__copytree(stree)
@@ -157,7 +157,7 @@ class SyntacticsStructure:
             while True:
                 lastnode = self.__getlastnonterm(ptr)  # шаг 2
                 if self.__havealonechild(lastnode) \
-                        and (lastnode.name not in ["VARIABLE", "STRING", "COMPOUND_OPERATOR", "INTEGER", "BOOL", "FLOAT"]):  # step3
+                        and (lastnode.name not in ["VARIABLE", "STRING", "COMPOUND_OPERATOR", "INTEGER", "BOOL", "FLOAT", "CONDITIONAL_EXPRESSION", "T", "N"]):  # step3
                     lastnode.me = lastnode.childs[0]
                     self.__reformattree(ptr)  # вернутся к шагу 1
                 elif self.__haveuselessterm(lastnode):  # шаг 4
@@ -176,13 +176,9 @@ class SyntacticsStructure:
                         ("NUM", "INTEGER"),
                         ("NUM", "FLOAT"),
                         ("NUM", "DIGIT"),
+                        ("T", "T")
                         #("NUM", "REAL_NUMBER"),
                     ]:
-                        if (lastnode.name, lastnode.prev.name) in [
-                            ("INTEGER NUMBER", "SIGNED NUM"),
-                            ("REAL NUMBER", "SIGNED NUM"),
-                        ]:
-                            lastnode.prev.name = lastnode.name
                         prevbuf = lastnode.prev
                         lastnode.prev.childs.remove(lastnode)
                         for child in lastnode.childs:

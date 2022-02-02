@@ -27,15 +27,16 @@ def test():
     operationtree.printast()
     IO.writeOperationTree(operationtree)
     sema = SemanticalAnalyzer(operationtree)
-    translator = CodeGenerator(operationtree, sema.variables)
+    translator = CodeGenerator(operationtree, sema.rootscope)
     translator.translate(operationtree.root)
     print(translator.output)
     IO.writeCode(translator.output)
 
 if __name__ == '__main__':
-    tester = Tester()
-
-
-
-
-
+    test()
+    # z = False
+    # if 1:
+    #     c = 1
+    #     if z:
+    #         v = 1
+    # a = v

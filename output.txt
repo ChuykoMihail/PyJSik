@@ -1,4 +1,7 @@
-let a, b, c;
-a = "sdf"
-b = 12
-c = 1.2
+if (1) { 
+	let a;
+	a = 1
+} else {
+	let a;
+	a = 2
+}

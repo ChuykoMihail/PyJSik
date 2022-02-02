@@ -11,8 +11,8 @@ def read(path=""):
 
         with open(currpath+path+"\\input.txt", 'r') as f:
             inputCode = f.read()
-    inputCode = inputCode.replace("\n", " ")
-    inputCode = inputCode.replace("    ", " ")
+    inputCode = inputCode.replace("\n", "\\n")
+    inputCode = inputCode.replace("    ", "\\t")
     inputCode = inputCode.replace(" ", "")
     return inputCode
 

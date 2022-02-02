@@ -29,7 +29,6 @@ def parse(characters):
             pos = match.end(0)
     return tokens
 
-
 def lextableToString(lextable):
     res = ""
     for i in lextable:

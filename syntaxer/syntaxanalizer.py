@@ -1,5 +1,5 @@
 from .state import State
-from .grammar import Grammar
+from .newgrammar import Grammar
 from .rule import Rule
 from .sintaxunit import SyntaxUnit
 from .column import Column
@@ -17,6 +17,8 @@ class SyntaxAnalizer:
     def scan(self, col, state, token):
         if token != col.token:
             return
+        if state.name == self.grammatic.GAMMA_RULE:
+            print("Gamma")
         col.add(State(state.name, state.production, state.dot_index + 1, state.start_column))
 
     def complete(self, col, state):
