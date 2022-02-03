@@ -1,9 +1,7 @@
-let password;
-password = "ssh"
-if (password=="sshh" && password<="gg") { 
-	let a1;
-	a1 = Math.abs(1.0)
-} else {
-	let a1;
-	a1 = 12/55
+let a;
+a = 0
+if (1) { 
+		if (1) { 
+				a = 1
+	}
 }

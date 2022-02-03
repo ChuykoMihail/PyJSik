@@ -60,6 +60,7 @@ class tokens:
         (r'False', tokens_type[1]),
         (r'True', tokens_type[1]),
         (r'if', tokens_type[0]),
+        (r'while', tokens_type[0]),
         (r'else', tokens_type[0]),
         (r'\\n', tokens_type[4]),
         (r'\\t+', tokens_type[4]),

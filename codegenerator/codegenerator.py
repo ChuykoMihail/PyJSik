@@ -118,14 +118,14 @@ class CodeGenerator:
             localoutput += compound.childs[0].value + " = "
             localoutput += self.translateexpression(compound.childs[1])
         elif compound.name == "CONDITIONAL_OPERATOR":
-            if len(compound.childs) == 3:
+            if len(compound.childs) <= 4:
                 self.currentscope = self.currentscope.subscope[0]
                 localoutput += "if ("
                 localoutput += self.translatelogicalexpression(compound.childs[0]) + ") { \n"
                 localoutput += (len(compound.childs[2].childs[0].childs))*"\t"+self.vardeclaration()
                 localoutput += self.translateinner(compound.childs[2]) + (
                         len(compound.childs[2].childs[0].childs)-1)*"\t" + "}"
-            elif len(compound.childs) == 7:
+            elif len(compound.childs) <= 8:
                 self.currentscope = self.currentscope.subscope[0]
                 localoutput += "if ("
                 localoutput += self.translatelogicalexpression(compound.childs[0]) + ") { \n"
@@ -136,6 +136,15 @@ class CodeGenerator:
                 localoutput += (len(compound.childs[2].childs[0].childs)) * "\t" + self.vardeclaration()
                 localoutput += self.translateinner(compound.childs[6]) + (
                         len(compound.childs[2].childs[0].childs) - 1) * "\t" + "}"
+        elif compound.name == "WHILE":
+            self.currentscope = self.currentscope.subscope[0]
+            localoutput+="while ("
+            localoutput += self.translatelogicalexpression(compound.childs[0]) + ") { \n"
+            localoutput += (len(compound.childs[2].childs[0].childs)) * "\t" + self.vardeclaration()
+            localoutput += self.translateinner(compound.childs[2]) + (
+                    len(compound.childs[2].childs[0].childs) - 1) * "\t" + "}"
+
+
 
 
         localoutput += "\n"

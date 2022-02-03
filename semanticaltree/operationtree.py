@@ -4,6 +4,7 @@ from __future__ import annotations
 from syntaxer.ATS import SyntacticalTree
 from syntaxer.ATS import Node
 from syntaxer.rule import Rule
+import copy
 
 
 class NodeStruct:
@@ -58,7 +59,7 @@ class NodeStruct:
 
 class SyntacticsStructure:
     def __init__(self, stree: SyntacticalTree):
-        self.uselessterms = ["(", ")", "if", "\'", "\"",":", "\\n"]
+        self.uselessterms = ["(", ")", "if", "\'", "\"",":", "\\n", "while"]
         self.operations = ['+', '-', '*', '/', '>', '<', '>=', '<=', '==', '!=', 'and', 'or', '=']
         self.unaroperations = ['not']
         self.root = self.__copytree(stree)
@@ -194,6 +195,15 @@ class SyntacticsStructure:
                             child.prev = prevbuf
                             prevbuf.childs.insert(indx, child)
                             indx += 1
+                    elif (lastnode.name, lastnode.prev.name) in [
+                        ("INTERNAL_OPERATOR", "INTERNAL_OPERATOR")
+                    ]:
+                        if (len(lastnode.childs[0].childs)<len(lastnode.prev.childs[0].childs)):
+                            wrongplacedinternal = copy.deepcopy(lastnode)
+                            lastnode.prev.childs.remove(lastnode)
+                            lastnode.prev = lastnode.prev.prev
+                            lastnode.prev.prev.childs.insert(lastnode)
+                            self.__reformattree(ptr)
                     else:
                         lastnode.me.isNonterminal = False
                 elif not self.__havenonterminalchilds(lastnode):  # шаг 6

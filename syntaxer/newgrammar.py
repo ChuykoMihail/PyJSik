@@ -112,17 +112,24 @@ class Grammar:
                                                     self.ADDITIONAL_EXPRESSION))
 
         self.CONDITIONAL_EXPRESSION = Rule("CONDITIONAL_EXPRESSION", SyntaxUnit(self.RELATION_EXPR),
-                                           SyntaxUnit(self.RELATION_EXPR,self.ADDITIONAL_EXPRESSION))
+                                           SyntaxUnit(self.RELATION_EXPR, self.ADDITIONAL_EXPRESSION))
 
         self.INTERNAL_OPERATOR = Rule("INTERNAL_OPERATOR", SyntaxUnit(self.T, self.COMPOUND_OPERATOR))
         self.INTERNAL_OPERATOR.add(SyntaxUnit(self.T, self.COMPOUND_OPERATOR, self.N, self.INTERNAL_OPERATOR))
 
-        self.CONDITIONAL_OPERATOR = Rule("CONDITIONAL_OPERATOR", SyntaxUnit("if", self.CONDITIONAL_EXPRESSION, ":",self.N,
+        self.WHILE = Rule("WHILE", SyntaxUnit("while", self.CONDITIONAL_EXPRESSION, ":", self.N,
+                                              self.INTERNAL_OPERATOR),
+                          SyntaxUnit("while", self.CONDITIONAL_EXPRESSION, ":", self.N, self.INTERNAL_OPERATOR,
+                                     "else", ":", self.N, self.INTERNAL_OPERATOR))
+
+        self.CONDITIONAL_OPERATOR = Rule("CONDITIONAL_OPERATOR", SyntaxUnit("if", self.CONDITIONAL_EXPRESSION, ":", self.N,
                                                                             self.INTERNAL_OPERATOR),
                                          SyntaxUnit("if", self.CONDITIONAL_EXPRESSION, ":", self.N, self.INTERNAL_OPERATOR,
-                                                    self.N,"else", ":", self.N, self.INTERNAL_OPERATOR))
+                                                    self.N, "else", ":", self.N, self.INTERNAL_OPERATOR),
+                                         SyntaxUnit("if", self.CONDITIONAL_EXPRESSION, ":", self.N, self.INTERNAL_OPERATOR,
+                                                    self.N, self.T, "else", ":", self.N, self.INTERNAL_OPERATOR))
 
-        self.COMPOUND_OPERATOR.add(SyntaxUnit(self.CONDITIONAL_OPERATOR))
+        self.COMPOUND_OPERATOR.add(SyntaxUnit(self.CONDITIONAL_OPERATOR), SyntaxUnit(self.WHILE))
 
         self.PROGRAMM = Rule("PROGRAMM", SyntaxUnit(self.COMPOUND_OPERATOR))
         self.PROGRAMM.add(SyntaxUnit(self.COMPOUND_OPERATOR, self.N, self.PROGRAMM))

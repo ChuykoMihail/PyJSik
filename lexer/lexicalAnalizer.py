@@ -47,7 +47,6 @@ def lextableToString(lextable):
         elif i.value == "\\n" and lextable[counter+1].value == "\\t":
             res += ' ' + i.value
             tmpcounter = counter
-            print(tmpcounter, counter)
             while(lextable[tmpcounter+1].value == "\\t"):
                 tmpcounter+=1
             else:

@@ -49,32 +49,32 @@ class SemanticalAnalyzer:
         self.scopes.append(self.rootscope)
         self.scan(self.root)
 
-    def checkvar(self, varptr, currscope:Scope):
+    def checkvar(self, varname: str, currscope: Scope):
         for var in currscope.variables:
-            if var[0] == varptr.value:
+            if var[0] == varname:
                 return var
         else:
             for scope in currscope.subscope:
                 if scope.level > self.currentscope.level:
                     return None
                 elif scope.level < self.currentscope.level:
-                    return self.checkvar(varptr, scope)
+                    return self.checkvar(varname, scope)
                 elif scope == self.currentscope:
-                    return self.checkvar(varptr, scope)
+                    return self.checkvar(varname, scope)
         return None
 
-    def checkvarbool(self, varptr, currscope):
+    def checkvarbool(self, varname:str, currscope):
         for var in currscope.variables:
-            if var[0] == varptr.value:
+            if var[0] == varname:
                 return True
         else:
             for scope in currscope.subscope:
                 if scope.level > self.currentscope.level:
                     return False
                 elif scope.level < self.currentscope.level:
-                    return self.checkvarbool(varptr, scope)
+                    return self.checkvarbool(varname, scope)
                 elif scope == self.currentscope:
-                    return self.checkvarbool(varptr, scope)
+                    return self.checkvarbool(varname, scope)
         return False
 
     def scantypes(self, ptr, left, right):
@@ -98,7 +98,7 @@ class SemanticalAnalyzer:
         left = ptr.childs[0]
         right = ptr.childs[1]
         var = self.scantypes(ptr, left, right)
-        if var:
+        if var and not self.checkvarbool(var[0], self.rootscope):
             self.currentscope.addvar(var)
 
     def scanconditional(self, ptr):
@@ -117,7 +117,7 @@ class SemanticalAnalyzer:
             self.subscanconditional(additional.childs[2])
 
     def scan(self, ptr: NodeStruct):
-        if ptr.name not in ["ASSIGNMENT", "CONDITIONAL_OPERATOR", "INTERNAL_OPERATOR"]:
+        if ptr.name not in ["ASSIGNMENT", "CONDITIONAL_OPERATOR", "INTERNAL_OPERATOR", "WHILE"]:
             for child in ptr.childs:
                 self.scan(child)
         elif ptr.name == "ASSIGNMENT":
@@ -143,6 +143,13 @@ class SemanticalAnalyzer:
             else:
                 sys.stderr.write('No tabulation')
                 sys.exit(1)
+        elif ptr.name == "WHILE":
+            self.scanconditional(ptr)
+            newscope = self.currentscope.newscope()
+            self.currentscope = newscope
+            self.scan(ptr.childs[2])
+            self.currentscope = self.currentscope.prev
+
 
     def scanexpression(self, ptr):
         if ptr.childs[1].name == "VARIABLE":
