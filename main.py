@@ -27,14 +27,14 @@ def test():
     operationtree.printast()
     IO.writeOperationTree(operationtree)
     sema = SemanticalAnalyzer(operationtree)
-    translator = CodeGenerator(operationtree, sema.rootscope)
+    translator = CodeGenerator(operationtree, sema.rootscope, sema.maxscopelevel)
     translator.translate(operationtree.root)
     print(translator.output)
     IO.writeCode(translator.output)
 
 if __name__ == '__main__':
     test()
-    # if 1 - -1:
+    # if "sdf" == 1:
     #     a = 1
     # else:
     #     a = 2

@@ -59,7 +59,7 @@ class NodeStruct:
 
 class SyntacticsStructure:
     def __init__(self, stree: SyntacticalTree):
-        self.uselessterms = ["(", ")", "if", "\'", "\"",":", "\\n", "while"]
+        self.uselessterms = ["(", ")", "if", "\'", "\"",":", "\\n", "while", "print"]
         self.operations = ['+', '-', '*', '/', '>', '<', '>=', '<=', '==', '!=', 'and', 'or', '=']
         self.unaroperations = ['not']
         self.root = self.__copytree(stree)
@@ -158,7 +158,7 @@ class SyntacticsStructure:
             while True:
                 lastnode = self.__getlastnonterm(ptr)  # шаг 2
                 if self.__havealonechild(lastnode) \
-                        and (lastnode.name not in ["VARIABLE", "STRING", "COMPOUND_OPERATOR", "INTEGER", "BOOL", "FLOAT", "CONDITIONAL_EXPRESSION", "T", "N"]):  # step3
+                        and (lastnode.name not in ["VARIABLE", "STRING", "COMPOUND_OPERATOR", "INTEGER", "BOOL", "FLOAT", "CONDITIONAL_EXPRESSION", "PRINT"]):  # step3
                     lastnode.me = lastnode.childs[0]
                     self.__reformattree(ptr)  # вернутся к шагу 1
                 elif self.__haveuselessterm(lastnode):  # шаг 4
@@ -177,7 +177,6 @@ class SyntacticsStructure:
                         ("NUM", "INTEGER"),
                         ("NUM", "FLOAT"),
                         ("NUM", "DIGIT"),
-                        ("T", "T")
                         #("NUM", "REAL_NUMBER"),
                     ]:
                         prevbuf = lastnode.prev
@@ -195,15 +194,6 @@ class SyntacticsStructure:
                             child.prev = prevbuf
                             prevbuf.childs.insert(indx, child)
                             indx += 1
-                    elif (lastnode.name, lastnode.prev.name) in [
-                        ("INTERNAL_OPERATOR", "INTERNAL_OPERATOR")
-                    ]:
-                        if (len(lastnode.childs[0].childs)<len(lastnode.prev.childs[0].childs)):
-                            wrongplacedinternal = copy.deepcopy(lastnode)
-                            lastnode.prev.childs.remove(lastnode)
-                            lastnode.prev = lastnode.prev.prev
-                            lastnode.prev.prev.childs.insert(lastnode)
-                            self.__reformattree(ptr)
                     else:
                         lastnode.me.isNonterminal = False
                 elif not self.__havenonterminalchilds(lastnode):  # шаг 6
@@ -257,9 +247,56 @@ class SyntacticsStructure:
                     i.childs.pop(0)
             return
 
+        # def _fixinner(ptr: NodeStruct):
+        #     for lastnode in ptr.childs:
+        #         if (lastnode.name, lastnode.prev.name) in [
+        #             ("INTERNAL_OPERATOR", "INTERNAL_OPERATOR")
+        #         ]:
+        #             falsetabs = len(lastnode.childs[0].childs)
+        #             othertabs = len(lastnode.prev.childs[0].childs)
+        #             if (falsetabs < othertabs):
+        #                 def regenerate(ptr1: NodeStruct, ptr2: NodeStruct):
+        #                     if ptr1.childs:
+        #                         for child in ptr1.childs:
+        #                             newnode = NodeStruct(child.isNonterminal, child.name, child.value, ptr2)
+        #                             ptr2.childs.append(newnode)
+        #                             regenerate(child, newnode)
+        #
+        #                 def findsuperprev(ptr):
+        #                     superprev = ptr
+        #                     while superprev.name != "CONDITIONAL_OPERATOR" and superprev.name != "WHILE":
+        #                         superprev = superprev.prev
+        #                     if len(superprev.childs[2].childs[0].childs) != falsetabs:
+        #                         return findsuperprev(superprev.prev)
+        #                     else:
+        #                         return superprev
+        #
+        #                 prevbuf = lastnode.prev
+        #                 indx = lastnode.prev.childs.index(lastnode)
+        #                 N = lastnode.prev.childs[indx - 1]
+        #                 superprev = findsuperprev(lastnode)
+        #                 a = superprev.childs[2]
+        #                 prevbuf.childs.remove(lastnode)
+        #                 prevbuf.childs.remove(N)
+        #                 # superprev.childs.remove(aN)
+        #                 superprev.childs.remove(a)
+        #                 newinternal = NodeStruct(True, "INTERNAL_OPERATOR", prev=superprev)
+        #                 superprev.childs.append(newinternal)
+        #                 regenerate(lastnode, newinternal)
+        #                 nnode = NodeStruct(False, "N", prev=newinternal)
+        #                 newinternal.childs.append(nnode)
+        #                 oldinternal = NodeStruct(True, "INTERNAL_OPERATOR", prev=newinternal)
+        #                 newinternal.childs.append(oldinternal)
+        #                 regenerate(a, oldinternal)
+        #         else:
+        #             _fixinner(lastnode)
+
+
+
         _searchid(ptr)
         _searchvars(ptr)
         _searchopers(ptr)
+        # _fixinner(ptr)
         return
 
     def __getlastnonterm(self, ptr) -> NodeStruct:

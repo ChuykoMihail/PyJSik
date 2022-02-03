@@ -36,6 +36,8 @@ def parse(characters):
 def lextableToString(lextable):
     res = ""
     counter = -1
+    bracketcounter = 0
+    tabscounter = 0
     while(counter < len(lextable)-1):
         counter += 1
         i = lextable[counter]
@@ -44,18 +46,37 @@ def lextableToString(lextable):
                 res += ' ' + j
         elif i.value == "\\n" and lextable[counter+1].value == "\\n":
             continue
-        elif i.value == "\\n" and lextable[counter+1].value == "\\t":
+        elif i.value == "\\n":
+                # and lextable[counter+1].value == "\\t"\
             res += ' ' + i.value
+            localtabs = 0
             tmpcounter = counter
             while(lextable[tmpcounter+1].value == "\\t"):
-                tmpcounter+=1
+                tmpcounter += 1
+                localtabs += 1
             else:
                 if lextable[tmpcounter+1].value == "\\n":
                     counter = tmpcounter
+                elif localtabs > tabscounter:
+                    res += ' ' + "{"*(localtabs-tabscounter)
+                    counter = tmpcounter
+                    tabscounter = localtabs
+                    bracketcounter+=1
+                elif localtabs < tabscounter:
+                    res += ' ' + "} "*(tabscounter-localtabs)
+                    counter = tmpcounter
+                    tabscounter = localtabs
+                    bracketcounter -= 1
+                elif localtabs == tabscounter:
+                    counter = tmpcounter
                 else:
                     continue
+
         else:
             res += ' ' + i.value
+    if tabscounter > 0:
+        res += ' '+"} "*tabscounter
+    res = res.replace(" \\n", "")
     return res
 
 

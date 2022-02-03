@@ -13,15 +13,15 @@ class Scope:
     def addvar(self, var):
         self.variables.append(var)
 
-    def checkvarbool(self, varptr):
+    def checkvarbool(self, varname):
         for var in self.variables:
-            if var[0] == varptr.value:
+            if var[0] == varname:
                 return True
         return False
 
-    def checkvar(self, varptr):
+    def checkvar(self, varname):
         for var in self.variables:
-            if var[0] == varptr.value:
+            if var[0] == varname:
                 return var
         return None
 
@@ -36,6 +36,7 @@ class SemanticalAnalyzer:
         self.tree = opertree
         self.root = self.tree.root
         self.scopes = []
+        self.maxscopelevel = 0
         self.illegalcombination = [
             ("INTEGER", "STRING"),
             ("STRING", "INTEGER"),
@@ -49,18 +50,20 @@ class SemanticalAnalyzer:
         self.scopes.append(self.rootscope)
         self.scan(self.root)
 
+
+
+
+
+
+
+
     def checkvar(self, varname: str, currscope: Scope):
         for var in currscope.variables:
             if var[0] == varname:
                 return var
         else:
-            for scope in currscope.subscope:
-                if scope.level > self.currentscope.level:
-                    return None
-                elif scope.level < self.currentscope.level:
-                    return self.checkvar(varname, scope)
-                elif scope == self.currentscope:
-                    return self.checkvar(varname, scope)
+            if currscope.prev:
+                return self.checkvar(varname, currscope.prev)
         return None
 
     def checkvarbool(self, varname:str, currscope):
@@ -68,13 +71,8 @@ class SemanticalAnalyzer:
             if var[0] == varname:
                 return True
         else:
-            for scope in currscope.subscope:
-                if scope.level > self.currentscope.level:
-                    return False
-                elif scope.level < self.currentscope.level:
-                    return self.checkvarbool(varname, scope)
-                elif scope == self.currentscope:
-                    return self.checkvarbool(varname, scope)
+            if currscope.prev:
+                return self.checkvarbool(varname, currscope.prev)
         return False
 
     def scantypes(self, ptr, left, right):
@@ -87,8 +85,8 @@ class SemanticalAnalyzer:
             if self.scanexpression(right):
                 return (right.prev.childs[0].value, "FLOAT")
         elif right.name == "VARIABLE":
-            if self.checkvarbool(right, self.rootscope):
-                var = self.checkvar(right, self.rootscope)
+            if self.checkvarbool(right.value, self.currentscope):
+                var = self.checkvar(right.value, self.currentscope)
                 return (left.value, var[1])
             else:
                 sys.stderr.write('Unresolved variable: %s\n' % right.value)
@@ -98,14 +96,15 @@ class SemanticalAnalyzer:
         left = ptr.childs[0]
         right = ptr.childs[1]
         var = self.scantypes(ptr, left, right)
-        if var and not self.checkvarbool(var[0], self.rootscope):
+        if var and not self.checkvarbool(var[0], self.currentscope):
             self.currentscope.addvar(var)
 
     def scanconditional(self, ptr):
         left = ptr.childs[0]
-        right = ptr.childs[1]
+        # right = ptr.childs[1]
         condition = left.childs[0]
-        self.scantypes(ptr, right, condition)
+        if condition.name == "OPERATION":
+            self.scantypes(condition, condition.childs[0], condition.childs[1])
         if len(left.childs) == 2:
             self.subscanconditional(left.childs[1])
 
@@ -117,7 +116,7 @@ class SemanticalAnalyzer:
             self.subscanconditional(additional.childs[2])
 
     def scan(self, ptr: NodeStruct):
-        if ptr.name not in ["ASSIGNMENT", "CONDITIONAL_OPERATOR", "INTERNAL_OPERATOR", "WHILE"]:
+        if ptr.name not in ["ASSIGNMENT", "CONDITIONAL_OPERATOR", "INTERNAL_OPERATOR", "WHILE", "PRINT"]:
             for child in ptr.childs:
                 self.scan(child)
         elif ptr.name == "ASSIGNMENT":
@@ -125,38 +124,54 @@ class SemanticalAnalyzer:
         elif ptr.name == "CONDITIONAL_OPERATOR":
             self.scanconditional(ptr)
             newscope = self.currentscope.newscope()
+            if newscope.level > self.maxscopelevel:
+                self.maxscopelevel = newscope.level
             self.currentscope = newscope
             self.scan(ptr.childs[2])
             self.currentscope = self.currentscope.prev
-            if len(ptr.childs) == 7:
+            if len(ptr.childs) == 8:
                 newscope = self.currentscope.newscope()
+                if newscope.level > self.maxscopelevel:
+                    self.maxscopelevel = newscope.level
                 self.currentscope = newscope
                 self.scan(ptr.childs[6])
                 self.currentscope = self.currentscope.prev
-        elif ptr.name == "INTERNAL_OPERATOR":
-            if ptr.childs[0].name == "T":
-                if len(ptr.childs[0].childs) != self.currentscope.level:
-                    sys.stderr.write('Wrong tabulation')
-                    sys.exit(1)
-                for inners in ptr.childs:
-                    self.scan(inners)
-            else:
-                sys.stderr.write('No tabulation')
-                sys.exit(1)
         elif ptr.name == "WHILE":
             self.scanconditional(ptr)
             newscope = self.currentscope.newscope()
+            if newscope.level > self.maxscopelevel:
+                self.maxscopelevel = newscope.level
             self.currentscope = newscope
             self.scan(ptr.childs[2])
             self.currentscope = self.currentscope.prev
+            if len(ptr.childs) == 8:
+                newscope = self.currentscope.newscope()
+                if newscope.level > self.maxscopelevel:
+                    self.maxscopelevel = newscope.level
+                self.currentscope = newscope
+                self.scan(ptr.childs[6])
+                self.currentscope = self.currentscope.prev
+        elif ptr.name == "PRINT":
+            right = ptr.childs[0]
+            self.scanargument(right)
+
+    def scanargument(self, argument):
+        if argument.name == "OPERATION":
+            self.subscantypes(argument)
+            self.scanargument(argument.prev)
+        elif argument.name == "VARIABLE":
+            if not self.checkvarbool(argument.value, self.currentscope):
+                sys.stderr.write('Unresolved variable: %s\n' % argument.value)
+                sys.exit(1)
+
 
 
     def scanexpression(self, ptr):
         if ptr.childs[1].name == "VARIABLE":
-            if not self.checkvarbool(ptr.childs[1], self.rootscope):
+            if not self.checkvarbool(ptr.childs[1].value, self.currentscope):
                 sys.stderr.write('Unresolved variable: %s\n' % ptr.childs[1].value)
                 sys.exit(1)
-            elif self.checkvar(ptr.childs[1], self.rootscope)[1] == "STRING":
+            elif self.checkvar(ptr.childs[1].value, self.currentscope)[1] == "STRING":
                 sys.stderr.write('Expected type \'SupportsFloat\': %s\n' % ptr.childs[0].name)
                 sys.exit(1)
             elif ptr.childs[1] == "OPERATION":
@@ -175,14 +190,14 @@ class SemanticalAnalyzer:
         elif right.name == "OPERATOR":
             self.subscantypes(right)
         if left.name == "VARIABLE":
-            if self.checkvarbool(left, self.rootscope):
-                var = self.checkvar(left, self.rootscope)
+            if self.checkvarbool(left.value, self.currentscope):
+                var = self.checkvar(left.value, self.currentscope)
                 if (var[1], right.name) in self.illegalcombination:
                     sys.stderr.write('Illegal type: %s\n' % right.name)
                     sys.exit(1)
                 elif right.name == "VARIABLE":
-                    if self.checkvarbool(right, self.rootscope):
-                        var2 = self.checkvar(right, self.rootscope)
+                    if self.checkvarbool(right.value, self.currentscope):
+                        var2 = self.checkvar(right.value, self.currentscope)
                         if (var[1], var2[1]) in self.illegalcombination:
                             sys.stderr.write('Illegal type: %s\n' % var2[0])
                             sys.exit(1)
@@ -204,8 +219,8 @@ class SemanticalAnalyzer:
                 else:
                     operation.name = "FLOAT"
         elif right.name == "VARIABLE":
-            if self.checkvarbool(right, self.rootscope):
-                var = self.checkvar(right, self.rootscope)
+            if self.checkvarbool(right.value, self.currentscope):
+                var = self.checkvar(right.value, self.currentscope)
                 if (var[1], left.name) in self.illegalcombination:
                     sys.stderr.write('Illegal type: %s\n' % right.name)
                     sys.exit(1)

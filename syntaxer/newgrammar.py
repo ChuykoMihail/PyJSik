@@ -130,8 +130,11 @@ class Grammar:
                                                     self.N, self.T, "else", ":", self.N, self.INTERNAL_OPERATOR))
 
         self.COMPOUND_OPERATOR.add(SyntaxUnit(self.CONDITIONAL_OPERATOR), SyntaxUnit(self.WHILE))
+        self.PRINT = Rule("PRINT", SyntaxUnit("print", "(", self.VALUE, ")"))
+        self.COMPOUND_OPERATOR.add(SyntaxUnit(self.PRINT))
 
         self.PROGRAMM = Rule("PROGRAMM", SyntaxUnit(self.COMPOUND_OPERATOR))
         self.PROGRAMM.add(SyntaxUnit(self.COMPOUND_OPERATOR, self.N, self.PROGRAMM))
+        self.PROGRAMM.add(SyntaxUnit(self.N, self.PROGRAMM))
 
         self.GAMMA_RULE = u"GAMMA"

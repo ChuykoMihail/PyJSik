@@ -57,6 +57,7 @@ class tokens:
         (r'math.sin', tokens_type[1]),
         (r'math.sqrt', tokens_type[1]),
         (r'math.tan', tokens_type[1]),
+        (r'print', tokens_type[1]),
         (r'False', tokens_type[1]),
         (r'True', tokens_type[1]),
         (r'if', tokens_type[0]),

@@ -4,7 +4,7 @@ from semanticaltree.semanticalanalizer import Scope
 
 
 class CodeGenerator:
-    def __init__(self, tree, scope: Scope):
+    def __init__(self, tree, scope: Scope, maxlevel):
         self.tree: SyntacticsStructure = tree
         self.root: NodeStruct = self.tree.root
         self.rootscope = scope
@@ -13,20 +13,26 @@ class CodeGenerator:
         self.logicbinoperation = ["and", "or"]
         self.unaroperation = ["not"]
         self.binaroperator = ["+", "-", "*", "/", ">", "<","<=",">=", "==", "!="]
+        self.scopecount = 0
+        self.currlevel = 0
+        self.maxlevel = maxlevel
+        self.levels = [0 for element in range(maxlevel+1)]
 
     def translate(self, ptr):
         self.output+=self.vardeclaration()
         if self.root.name == "COMPOUND_OPERATOR":
             self.output+=self.translatesingle(self.root.childs[0])
         else:
-            self.translateall(ptr)
+            self.output += self.translateall(ptr)
 
     def translateall(self, ptr):
+        localoutput = ""
         for child in ptr.childs:
             if child.name == "COMPOUND_OPERATOR":
-                self.output+=self.translatesingle(child.childs[0])
+                localoutput += self.translatesingle(child.childs[0])
             elif child.name == "PROGRAMM":
                 self.translateall(child)
+        return localoutput
 
     def vardeclaration(self):
         localoutput = ""
@@ -93,24 +99,13 @@ class CodeGenerator:
         return localoutput
 
 
-    def translateinner(self, inner):
-        localoutput = ""
-        localoutput += "\t"*len(inner.childs[0].childs)
-        localoutput += self.translatesingle(inner.childs[1].childs[0])
-        if len(inner.childs) == 4:
-            localoutput += self.translateinner(inner.childs[3])
-        return localoutput
-
-    # def translatesingle(self, compound: NodeStruct):
+    # def translateinner(self, inner):
     #     localoutput = ""
-    #     if compound.name == "ASSIGNMENT":
-    #         self.output += compound.childs[0].value + " = "
-    #         self.output += self.translateexpression(compound.childs[1])
-    #     elif compound.name == "CONDITIONAL_OPERATOR":
-    #         self.output += "if ("
-    #         self.output += self.translatelogicalexpression(compound.childs[0]) + ") { \n"
-    #         self.output += self.translateinner(compound.childs[2])
-    #     self.output += "\n"
+    #     localoutput += "\t"*len(inner.childs[0].childs)
+    #     localoutput += self.translatesingle(inner.childs[1].childs[0])
+    #     if len(inner.childs) == 4:
+    #         localoutput += self.translateinner(inner.childs[3])
+    #     return localoutput
 
     def translatesingle(self, compound: NodeStruct):
         localoutput = ""
@@ -118,34 +113,58 @@ class CodeGenerator:
             localoutput += compound.childs[0].value + " = "
             localoutput += self.translateexpression(compound.childs[1])
         elif compound.name == "CONDITIONAL_OPERATOR":
+            level = self.currentscope.level+1
+            buaty = "\t"*(level)
             if len(compound.childs) <= 4:
-                self.currentscope = self.currentscope.subscope[0]
+                self.currentscope = self.currentscope.subscope[self.levels[level]]
+                self.levels[level]+=1
                 localoutput += "if ("
                 localoutput += self.translatelogicalexpression(compound.childs[0]) + ") { \n"
-                localoutput += (len(compound.childs[2].childs[0].childs))*"\t"+self.vardeclaration()
-                localoutput += self.translateinner(compound.childs[2]) + (
-                        len(compound.childs[2].childs[0].childs)-1)*"\t" + "}"
+                localoutput += buaty+self.vardeclaration()
+                if compound.childs[2].name == "COMPOUND_OPERATOR":
+                    localoutput += buaty+self.translatesingle(compound.childs[2].childs[0]) + "\t"*(level-1)+"}"
+                elif compound.childs[2].name == "PROGRAMM":
+                    localoutput += buaty+self.translateall(compound.childs[2]) + "\t"*(level-1)+"}"
+                self.currentscope = self.currentscope.prev
             elif len(compound.childs) <= 8:
-                self.currentscope = self.currentscope.subscope[0]
+                self.currentscope = self.currentscope.subscope[self.levels[level]]
+                self.levels[level] += 1
                 localoutput += "if ("
                 localoutput += self.translatelogicalexpression(compound.childs[0]) + ") { \n"
-                localoutput += (len(compound.childs[2].childs[0].childs)) * "\t" + self.vardeclaration()
-                localoutput += self.translateinner(compound.childs[2]) + (
-                        len(compound.childs[2].childs[0].childs) - 1) * "\t" + "} "+"else {\n"
-                self.currentscope = self.currentscope.prev.subscope[1]
-                localoutput += (len(compound.childs[2].childs[0].childs)) * "\t" + self.vardeclaration()
-                localoutput += self.translateinner(compound.childs[6]) + (
-                        len(compound.childs[2].childs[0].childs) - 1) * "\t" + "}"
+                localoutput += buaty+self.vardeclaration()
+                if compound.childs[2].name == "COMPOUND_OPERATOR":
+                    localoutput += buaty+self.translatesingle(compound.childs[2].childs[0]) + "\t"*(level-1)+"}"
+                elif compound.childs[2].name == "PROGRAMM":
+                    localoutput += buaty+self.translateall(compound.childs[2]) + "\t"*(level-1)+"}"
+                localoutput += "else {\n"
+                self.currentscope = self.currentscope.prev.subscope[self.levels[level]]
+                self.levels[level] += 1
+                localoutput += buaty + self.vardeclaration()
+                if compound.childs[2].name == "COMPOUND_OPERATOR":
+                    localoutput += buaty+self.translatesingle(compound.childs[6].childs[0]) + "\t"*(level-1)+"}"
+                elif compound.childs[2].name == "PROGRAMM":
+                    localoutput += buaty+self.translateall(compound.childs[6]) + "\t"*(level-1)+"}"
         elif compound.name == "WHILE":
-            self.currentscope = self.currentscope.subscope[0]
-            localoutput+="while ("
+            level = self.currentscope.level + 1
+            buaty = "\t" * (level)
+            self.currentscope = self.currentscope.subscope[self.levels[level]]
+            self.levels[level] += 1
+            localoutput += "while ("
             localoutput += self.translatelogicalexpression(compound.childs[0]) + ") { \n"
-            localoutput += (len(compound.childs[2].childs[0].childs)) * "\t" + self.vardeclaration()
-            localoutput += self.translateinner(compound.childs[2]) + (
-                    len(compound.childs[2].childs[0].childs) - 1) * "\t" + "}"
-
-
-
-
+            localoutput += buaty+self.vardeclaration()
+            localoutput += buaty+self.translatesingle(compound.childs[2].childs[0]) + "\t"*(level-1)+"}"
+            if len(compound.childs) > 4:
+                localoutput += "else {\n"
+                self.currentscope = self.currentscope.prev.subscope[self.levels[level]]
+                self.levels[level] += 1
+                localoutput += buaty+self.vardeclaration()
+                if compound.childs[2].name == "COMPOUND_OPERATOR":
+                    localoutput += buaty + self.translatesingle(compound.childs[6].childs[0]) + "\t" * (level - 1) + "}"
+                elif compound.childs[2].name == "PROGRAMM":
+                    localoutput += buaty + self.translateall(compound.childs[6]) + "\t" * (level - 1) + "}"
+            self.currentscope = self.currentscope.prev
+        elif compound.name == "PRINT":
+            localoutput += "console.log("
+            localoutput += self.translateexpression(compound.childs[0])+")"
         localoutput += "\n"
         return localoutput

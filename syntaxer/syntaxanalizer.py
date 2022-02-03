@@ -1,5 +1,5 @@
 from .state import State
-from .newgrammar import Grammar
+from .grammar import Grammar
 from .rule import Rule
 from .sintaxunit import SyntaxUnit
 from .column import Column
