@@ -1,16 +1,2 @@
 let a;
-a = 1
-if (a!=0 && a<3) { 
-	let c, g;
-	c = 1
-if (a!=0 && a<3) { 
-		let b;
-		b = 1
-	}
-g = 2
-}else {
-		if (a!=0 && a<3) { 
-		let c;
-		c = 1
-	}
-}
+a = True+1<2

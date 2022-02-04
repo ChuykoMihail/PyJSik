@@ -18,8 +18,7 @@ def parse(characters):
             match = regex.match(characters, pos)
             if match:
                 if tag == "RESERVEDNAME":
-                    if characters[match.end(0)] != "(":
-                        print(match.end(0))
+                    if match.end(0) < len(characters) and characters[match.end(0)] != "(":
                         continue
                 text = match.group(0)
                 if tag:
