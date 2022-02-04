@@ -177,6 +177,7 @@ class SyntacticsStructure:
                         ("NUM", "INTEGER"),
                         ("NUM", "FLOAT"),
                         ("NUM", "DIGIT"),
+                        # ("EXP", "REAL_NUMBER")
                         #("NUM", "REAL_NUMBER"),
                     ]:
                         prevbuf = lastnode.prev
@@ -186,6 +187,7 @@ class SyntacticsStructure:
                             prevbuf.childs.append(child)
                     elif (lastnode.name, lastnode.prev.name) in [
                         ("NUM", "REAL_NUMBER"),
+                        ("EXP", "REAL_NUMBER")
                     ]:
                         prevbuf = lastnode.prev
                         indx = lastnode.prev.childs.index(lastnode)

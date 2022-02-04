@@ -31,7 +31,7 @@ class CodeGenerator:
             if child.name == "COMPOUND_OPERATOR":
                 localoutput += self.translatesingle(child.childs[0])
             elif child.name == "PROGRAMM":
-                self.translateall(child)
+                localoutput += self.translateall(child)
         return localoutput
 
     def vardeclaration(self):
@@ -126,6 +126,8 @@ class CodeGenerator:
                 elif compound.childs[2].name == "PROGRAMM":
                     localoutput += buaty+self.translateall(compound.childs[2]) + "\t"*(level-1)+"}"
                 self.currentscope = self.currentscope.prev
+                for i in self.levels[self.currentscope.level+1:]:
+                    i = 0
             elif len(compound.childs) <= 8:
                 self.currentscope = self.currentscope.subscope[self.levels[level]]
                 self.levels[level] += 1
@@ -140,10 +142,11 @@ class CodeGenerator:
                 self.currentscope = self.currentscope.prev.subscope[self.levels[level]]
                 self.levels[level] += 1
                 localoutput += buaty + self.vardeclaration()
-                if compound.childs[2].name == "COMPOUND_OPERATOR":
+                if compound.childs[6].name == "COMPOUND_OPERATOR":
                     localoutput += buaty+self.translatesingle(compound.childs[6].childs[0]) + "\t"*(level-1)+"}"
-                elif compound.childs[2].name == "PROGRAMM":
+                elif compound.childs[6].name == "PROGRAMM":
                     localoutput += buaty+self.translateall(compound.childs[6]) + "\t"*(level-1)+"}"
+                self.currentscope = self.currentscope.prev
         elif compound.name == "WHILE":
             level = self.currentscope.level + 1
             buaty = "\t" * (level)

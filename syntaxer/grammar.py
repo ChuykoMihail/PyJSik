@@ -63,8 +63,8 @@ class Grammar:
         self.DIGIT_VAR.add(SyntaxUnit(self.DIGIT, self.DIGIT_VAR), SyntaxUnit(self.DIGIT, self.VARIABLE))
         self.VARIABLE.add(SyntaxUnit("_", self.VARIABLE), SyntaxUnit(self.LETTER, self.VARIABLE))
 
-        self.EXP = Rule("EXP", SyntaxUnit("e+"), SyntaxUnit("e-"), SyntaxUnit("E+"),
-                        SyntaxUnit("E-"), SyntaxUnit("e"), SyntaxUnit("E"))
+        self.EXP = Rule("EXP", SyntaxUnit("e", "+"), SyntaxUnit("e","-"), SyntaxUnit("E","+"),
+                        SyntaxUnit("E-","-"), SyntaxUnit("e"), SyntaxUnit("E"))
         self.REAL_NUMBER = Rule("REAL_NUMBER", SyntaxUnit(self.NUM, ".", self.NUM),
                                 SyntaxUnit(self.NUM, ".", self.NUM, self.EXP, self.NUM),
                                 SyntaxUnit(self.NUM, ".", self.EXP, self.NUM),
