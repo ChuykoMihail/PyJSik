@@ -126,8 +126,9 @@ class CodeGenerator:
                 elif compound.childs[2].name == "PROGRAMM":
                     localoutput += buaty+self.translateall(compound.childs[2]) + "\t"*(level-1)+"}"
                 self.currentscope = self.currentscope.prev
-                for i in self.levels[self.currentscope.level+1:]:
-                    i = 0
+                if self.maxlevel-self.currentscope.level >1:
+                    for i in range(self.currentscope.level+2, self.maxlevel+1):
+                        self.levels[i] = 0
             elif len(compound.childs) <= 8:
                 self.currentscope = self.currentscope.subscope[self.levels[level]]
                 self.levels[level] += 1
@@ -139,7 +140,12 @@ class CodeGenerator:
                 elif compound.childs[2].name == "PROGRAMM":
                     localoutput += buaty+self.translateall(compound.childs[2]) + "\t"*(level-1)+"}"
                 localoutput += "else {\n"
-                self.currentscope = self.currentscope.prev.subscope[self.levels[level]]
+                # self.currentscope = self.currentscope.prev.subscope[self.levels[level]]
+                self.currentscope = self.currentscope.prev
+                if self.maxlevel-self.currentscope.level >1:
+                    for i in range(self.currentscope.level+2, self.maxlevel+1):
+                        self.levels[i] = 0
+                self.currentscope = self.currentscope.subscope[self.levels[level]]
                 self.levels[level] += 1
                 localoutput += buaty + self.vardeclaration()
                 if compound.childs[6].name == "COMPOUND_OPERATOR":
@@ -147,6 +153,9 @@ class CodeGenerator:
                 elif compound.childs[6].name == "PROGRAMM":
                     localoutput += buaty+self.translateall(compound.childs[6]) + "\t"*(level-1)+"}"
                 self.currentscope = self.currentscope.prev
+                if self.maxlevel-self.currentscope.level >1:
+                    for i in range(self.currentscope.level+2, self.maxlevel+1):
+                        self.levels[i] = 0
         elif compound.name == "WHILE":
             level = self.currentscope.level + 1
             buaty = "\t" * (level)
@@ -158,7 +167,11 @@ class CodeGenerator:
             localoutput += buaty+self.translatesingle(compound.childs[2].childs[0]) + "\t"*(level-1)+"}"
             if len(compound.childs) > 4:
                 localoutput += "else {\n"
-                self.currentscope = self.currentscope.prev.subscope[self.levels[level]]
+                self.currentscope = self.currentscope.prev
+                if self.maxlevel - self.currentscope.level > 1:
+                    for i in range(self.currentscope.level + 2, self.maxlevel + 1):
+                        self.levels[i] = 0
+                self.currentscope = self.currentscope.subscope[self.levels[level]]
                 self.levels[level] += 1
                 localoutput += buaty+self.vardeclaration()
                 if compound.childs[2].name == "COMPOUND_OPERATOR":
@@ -166,6 +179,9 @@ class CodeGenerator:
                 elif compound.childs[2].name == "PROGRAMM":
                     localoutput += buaty + self.translateall(compound.childs[6]) + "\t" * (level - 1) + "}"
             self.currentscope = self.currentscope.prev
+            if self.maxlevel - self.currentscope.level > 1:
+                for i in range(self.currentscope.level + 2, self.maxlevel + 1):
+                    self.levels[i] = 0
         elif compound.name == "PRINT":
             localoutput += "console.log("
             localoutput += self.translateexpression(compound.childs[0])+")"

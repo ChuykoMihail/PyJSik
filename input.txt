@@ -1,1 +1,9 @@
-a=2.1e+1
+a=1
+if a != 0 and a<3:
+    c=1
+    if a != 0 and a<3:
+        b=1
+    g=2
+else:
+    if a != 0 and a<3:
+        c=1
